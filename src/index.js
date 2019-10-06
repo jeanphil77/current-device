@@ -53,7 +53,9 @@ device.ipod = function() {
 }
 
 device.ipad = function() {
-  return find('ipad')
+  // iPad OS 13 no longer has ipad in the user agent
+  // https://stackoverflow.com/a/58092210
+  return find('ipad') || find('macintosh') && 'ontouchend' in window.document;
 }
 
 device.android = function() {
