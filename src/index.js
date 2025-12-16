@@ -59,7 +59,24 @@ device.ipad = function() {
 };
 
 device.android = function() {
-  return !device.windows() && find('android')
+  // As of 2025/12, powerful Android tablet now request the site in Desktop mode which causes current-device to return 'desktop' type:
+  //
+  //   navigator.userAgent
+  //   'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36'
+  //   window.device.type
+  //   'tablet'
+  //
+  //   navigator.userAgent
+  //   'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36'
+  //   window.device.type
+  //   'desktop'
+  //
+  // This, in turn, prevents the soft keyboard from popping up automatically.
+  const hasTouch = navigator.maxTouchPoints > 0;
+  //const isLargeScreen = Math.max(screen.width, screen.height) >= 800; // tablet threshold
+  const isDesktopUA = /X11|Linux x86_64/.test(navigator.userAgent);
+  const isAndroidTabletDesktopMode = hasTouch && isDesktopUA; // && isLargeScreen;
+  return !device.windows() && (find('android') || isAndroidTabletDesktopMode);
 }
 
 device.androidPhone = function() {
