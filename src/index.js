@@ -59,7 +59,7 @@ device.ipad = function() {
 };
 
 device.android = function() {
-  // As of 2025/12, powerful Android tablet now request the site in Desktop mode which causes current-device to return 'desktop' type:
+  // As of 2025/12, powerful Android tablets now request the site in Desktop mode which causes current-device to return 'desktop' type:
   //
   //   navigator.userAgent
   //   'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36'
@@ -71,9 +71,15 @@ device.android = function() {
   //   window.device.type
   //   'desktop'
   //
-  // This, in turn, prevents the soft keyboard from popping up automatically.
+  // This, in turn, prevents the soft keyboard from popping up automatically for those tablets.
+
+  // Chromebook laptops may look like Android tablets since they have touch and advertise themselves as X11 so we need to skip them first.
+  if (device.chromeOS()) {
+    return false;
+  }
+
   const hasTouch = navigator.maxTouchPoints > 0;
-  //const isLargeScreen = Math.max(screen.width, screen.height) >= 800; // tablet threshold
+  const isLargeScreen = Math.max(screen.width, screen.height) >= 800; // tablet threshold
   const isDesktopUA = /X11|Linux x86_64/.test(navigator.userAgent);
   const isAndroidTabletDesktopMode = hasTouch && isDesktopUA; // && isLargeScreen;
   return !device.windows() && (find('android') || isAndroidTabletDesktopMode);
@@ -101,6 +107,11 @@ device.blackberryTablet = function() {
 
 device.windows = function() {
   return find('windows')
+}
+
+device.chromeOS = function() {
+  // Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36
+  return find('cros')
 }
 
 device.windowsPhone = function() {
